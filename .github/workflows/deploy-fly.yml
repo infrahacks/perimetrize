@@ -44,7 +44,7 @@ jobs:
 
       - name: Create public ip
         run: |
-          flyctl ip list --app $FLY_APP | grep v4 || flyctl allocate-v4 --app $FLY_APP
+          flyctl ips list --app $FLY_APP | grep v4 || flyctl allocate-v4 --app $FLY_APP
         working-directory: apps/teleport
 
       - name: Create volume

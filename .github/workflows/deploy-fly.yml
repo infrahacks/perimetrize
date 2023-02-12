@@ -41,10 +41,7 @@ jobs:
         working-directory: apps/teleport
 
       - name: Create volume
-        run: >
-          flyctl volume list --app $FLY_APP -j
-            | jq -r '.[] | select(.name="teleport")'
-            || fly volume create teleport --size 1 --app $FLY_APP
+        run: flyctl volume list --app $FLY_APP -j | jq -r '.[] | select(.name="teleport")' || fly volume create teleport --size 1 --app $FLY_APP
         working-directory: apps/teleport
 
       - name: Deploy fly machine

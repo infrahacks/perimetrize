@@ -18,6 +18,7 @@ jobs:
     env:
       FLY_APP: "${{ secrets.TELEPORT_FLY_APP }}"
       FLY_ORG: "${{ secrets.TELEPORT_FLY_ORG }}"
+      FLY_REGION: gru
       FLY_ACCESS_TOKEN: "${{ secrets.FLY_ACCESS_TOKEN }}"
       TELEPORT_EXTERNAL_HOST: "${{ secrets.TELEPORT_EXTERNAL_HOST }}"
       TELEPORT_ACME_EMAIL: "${{ secrets.TELEPORT_ACME_EMAIL}}"
@@ -44,7 +45,7 @@ jobs:
       - name: Create volume
         run: |
           VOLUMES=`flyctl volume list --app $FLY_APP -j  | jq 'select(.[].name="teleport") | length'`
-          [ $VOLUMES -eq 0 ] && fly volume create teleport --size 1 --app $FLY_APP
+          [ $VOLUMES -eq 0 ] && fly volume create teleport --region $FLY_REGION --size 1 --app $FLY_APP
         working-directory: apps/teleport
 
       - name: Deploy fly machine
@@ -54,7 +55,7 @@ jobs:
           [ $VOLUMES -eq 0 ] && flyctl machines run registry.fly.io/$FLY_APP \
             --name teleport \
             --app $FLY_APP \
-            --region gru  \
+            --region $FLY_REGION  \
             --org $FLY_ORG \
             --port 443:443 \
             --volume teleport:/var/lib/teleport

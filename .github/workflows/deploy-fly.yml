@@ -1,5 +1,6 @@
 ---
 name: Deploy teleport on fly.io
+run-name: Deploy teleport on fly.io (started={{inputs.started}})
 
 on:
   workflow_dispatch:
@@ -80,6 +81,7 @@ jobs:
               echo "Machine already exists. Updating"
               MACHINE_ID=`flyctl m list -j  | jq -r '.[] | select(.name="teleport") | .id'`
               flyctl machine update $MACHINE_ID --image $IMAGE --yes
+              flyctl machine start --app $FLY_APP $MACHINE_ID
             }
         working-directory: apps/teleport
 

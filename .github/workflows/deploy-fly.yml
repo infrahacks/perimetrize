@@ -8,7 +8,7 @@ on:
         required: true
         type: boolean
         default: true
-        description: Started or stopped
+        description: Started machine
 
 jobs:
   build:
@@ -16,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: testing
     env:
-      FLY_APP: "{{ secrets.TELEPORT_FLY_APP }}"
-      FLY_ORG: "{{ secrets.TELEPORT_FLY_ORG }}"
-      TELEPORT_EXTERNAL_HOST: "{{ secrets.TELEPORT_EXTERNAL_HOST }}"
-      TELEPORT_ACME_EMAIL: "{{ secrets.TELEPORT_ACME_EMAIL}}"
+      FLY_APP: "${{ secrets.TELEPORT_FLY_APP }}"
+      FLY_ORG: "${{ secrets.TELEPORT_FLY_ORG }}"
+      TELEPORT_EXTERNAL_HOST: "${{ secrets.TELEPORT_EXTERNAL_HOST }}"
+      TELEPORT_ACME_EMAIL: "${{ secrets.TELEPORT_ACME_EMAIL}}"
     steps:
       - name: Checkout project
         uses: actions/checkout@v3
@@ -45,7 +45,7 @@ jobs:
         working-directory: apps/teleport
 
       - name: Deploy fly machine
-        if: "{{ inputs.started }}"
+        if: "${{ inputs.started }}"
         run: >
           flyctl machines run registry.fly.io/$FLY_APP
             --name teleport
@@ -58,7 +58,7 @@ jobs:
         working-directory: apps/teleport
 
       - name: Destroy fly machine
-        if: "{{ inputs.started == false }}"
+        if: "${{ inputs.started == false }}"
         run: >
           flyctl machine stop --app $FLY_APP --force
             $(flyctl m list --app $FLY_APP -j | jq -r '.[] | select(.name="teleport") | .id')

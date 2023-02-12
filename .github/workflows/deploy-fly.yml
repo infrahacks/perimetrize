@@ -36,6 +36,11 @@ jobs:
           flyctl apps releases --app $FLY_APP || flyctl apps create $FLY_APP
         working-directory: apps/teleport
 
+      - name: Create public ip
+        run: |
+          flyctl ip list --app $FLY_APP | grep v4 || flyctl allocate-v4 --app $FLY_APP
+        working-directory: apps/teleport
+
       - name: Create volume
         run: |
           VOLUMES=`flyctl volume list --app $FLY_APP -j  | jq 'select(.[].name="teleport") | length'`

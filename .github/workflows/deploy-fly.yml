@@ -83,11 +83,9 @@ jobs:
             }
         working-directory: apps/teleport
 
-      - name: Destroy fly machine
+      - name: Stop fly machine
         if: "${{ inputs.started == false }}"
         run: |
-          flyctl machine remove \
-            --app $FLY_APP \
-            --force \
-            $(flyctl m list --app $FLY_APP -j | jq -r '.[] | select(.name="teleport") | .id')
+          MACHINE_ID=`flyctl m list --app $FLY_APP -j | jq -r '.[] | select(.name="teleport") | .id'`
+          flyctl machine stop --app $FLY_APP $MACHINE_ID
         working-directory: apps/teleport

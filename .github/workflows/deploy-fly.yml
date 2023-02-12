@@ -1,6 +1,6 @@
 ---
 name: Deploy teleport on fly.io
-run-name: Deploy teleport on fly.io (started={{inputs.started}})
+run-name: Deploy teleport on fly.io (started=${{inputs.started}})
 
 on:
   workflow_dispatch:

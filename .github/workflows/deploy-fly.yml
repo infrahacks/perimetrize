@@ -46,20 +46,22 @@ jobs:
 
       - name: Deploy fly machine
         if: "${{ inputs.started }}"
-        run: >
-          flyctl machines run registry.fly.io/$FLY_APP
-            --name teleport
-            --app $FLY_APP
-            --region gru 
-            --org $FLY_ORG
-            --port 443:443
-            --volume teleport:/var/lib/teleport
+        run: |
+          flyctl machines run registry.fly.io/$FLY_APP \
+            --name teleport \
+            --app $FLY_APP \
+            --region gru  \
+            --org $FLY_ORG \
+            --port 443:443 \
+            --volume teleport:/var/lib/teleport \
             || echo "ok"
         working-directory: apps/teleport
 
       - name: Destroy fly machine
         if: "${{ inputs.started == false }}"
-        run: >
-          flyctl machine stop --app $FLY_APP --force
+        run: |
+          flyctl machine stop \
+            --app $FLY_APP \
+            --force \
             $(flyctl m list --app $FLY_APP -j | jq -r '.[] | select(.name="teleport") | .id')
         working-directory: apps/teleport

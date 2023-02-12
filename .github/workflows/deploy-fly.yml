@@ -26,6 +26,12 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@v3
 
+      - name: Export variables
+        run: |
+          cat <<EOF >> $GITHUB_ENV
+          COMMIT_SHORT_HASH=`git rev-parse --short HEAD`
+          EOF
+
       - name: Install flyctl
         run: |
           curl -L https://fly.io/install.sh | sh
@@ -53,14 +59,14 @@ jobs:
         if: "${{ inputs.started }}"
         run: |
           envsubst < teleport.yaml | tee teleport.yaml && {
-          flyctl deploy --app $FLY_APP --build-only --push --image-label latest
+          flyctl deploy --app $FLY_APP --build-only --push --image-label $COMMIT_SHORT_HASH
           }
         working-directory: apps/teleport
 
       - name: Deploy fly machine
         if: "${{ inputs.started }}"
         run: |
-          IMAGE=registry.fly.io/$FLY_APP
+          IMAGE=registry.fly.io/$FLY_APP:$COMMIT_SHORT_HASH
           MACHINES=`flyctl machines list --app $FLY_APP -j | jq 'select(.[].name="teleport") | length' 2>/dev/null || echo 0`
           [ $MACHINES -eq 0 ] && {
             flyctl machines run $IMAGE \

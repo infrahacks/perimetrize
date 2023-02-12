@@ -61,7 +61,7 @@ jobs:
               --region $FLY_REGION \
               --org $FLY_ORG \
               --port 443:443 \
-              --volume teleport:/var/lib/teleport \
+              --volume teleport:/var/lib/teleport
             } || echo "Machine already exists"
         working-directory: apps/teleport
 

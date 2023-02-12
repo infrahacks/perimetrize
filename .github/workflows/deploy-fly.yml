@@ -46,7 +46,7 @@ jobs:
 
       - name: Build
         if: "${{ inputs.started }}"
-        run: >
+        run: |
           envsubst < teleport.yaml | tee teleport.yaml && {
           flyctl deploy --app $FLY_APP --build-only --push --image-label latest
           }

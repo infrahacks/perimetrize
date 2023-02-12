@@ -42,20 +42,22 @@ jobs:
         working-directory: apps/teleport
 
       - name: Create volume
-        run: flyctl volume list --app $FLY_APP -j | jq -r '.[] | select(.name="teleport")' || fly volume create teleport --size 1 --app $FLY_APP
+        run: |
+          VOLUMES=`flyctl volume list --app $FLY_APP -j  | jq 'select(.[].name="teleport") | length'`
+          [ $VOLUMES -eq 0 ] && fly volume create teleport --size 1 --app $FLY_APP
         working-directory: apps/teleport
 
       - name: Deploy fly machine
         if: "${{ inputs.started }}"
         run: |
-          flyctl machines run registry.fly.io/$FLY_APP \
+          MACHINES=`flyctl machines list --app $FLY_APP -j | jq 'select(.[].name="teleport") | length'`
+          [ $VOLUMES -eq 0 ] && flyctl machines run registry.fly.io/$FLY_APP \
             --name teleport \
             --app $FLY_APP \
             --region gru  \
             --org $FLY_ORG \
             --port 443:443 \
-            --volume teleport:/var/lib/teleport \
-            || echo "ok"
+            --volume teleport:/var/lib/teleport
         working-directory: apps/teleport
 
       - name: Destroy fly machine

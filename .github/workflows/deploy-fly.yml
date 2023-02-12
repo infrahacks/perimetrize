@@ -36,6 +36,7 @@ jobs:
         working-directory: apps/teleport
 
       - name: Build
+        if: "${{ inputs.started }}"
         run: >
           flyctl deploy --app $FLY_APP --build-only --push --image-label latest
         working-directory: apps/teleport
@@ -60,7 +61,7 @@ jobs:
       - name: Destroy fly machine
         if: "${{ inputs.started == false }}"
         run: |
-          flyctl machine stop \
+          flyctl machine remove \
             --app $FLY_APP \
             --force \
             $(flyctl m list --app $FLY_APP -j | jq -r '.[] | select(.name="teleport") | .id')

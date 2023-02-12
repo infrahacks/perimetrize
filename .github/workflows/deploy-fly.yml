@@ -52,10 +52,10 @@ jobs:
         if: "${{ inputs.started }}"
         run: |
           MACHINES=`flyctl machines list --app $FLY_APP -j | jq 'select(.[].name="teleport") | length'`
-          [ $VOLUMES -eq 0 ] && flyctl machines run registry.fly.io/$FLY_APP \
+          [ $MACHINES -eq 0 ] && flyctl machines run registry.fly.io/$FLY_APP \
             --name teleport \
             --app $FLY_APP \
-            --region $FLY_REGION  \
+            --region $FLY_REGION \
             --org $FLY_ORG \
             --port 443:443 \
             --volume teleport:/var/lib/teleport

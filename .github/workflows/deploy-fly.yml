@@ -53,8 +53,8 @@ jobs:
       - name: Deploy fly machine
         if: "${{ inputs.started }}"
         run: |
-          MACHINES=`flyctl machines list --app $FLY_APP -j | jq 'select(.[].name="teleport") | length'`
-          [[ "$MACHINES" == "0" ]] && {
+          MACHINES=`flyctl machines list --app $FLY_APP -j | jq 'select(.[].name="teleport") | length' 2>/dev/null || echo 0`
+          [ $MACHINES -eq 0 ] && {
             flyctl machines run registry.fly.io/$FLY_APP \
               --name teleport \
               --app $FLY_APP \

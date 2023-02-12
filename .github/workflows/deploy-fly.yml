@@ -79,7 +79,7 @@ jobs:
             } || {
               echo "Machine already exists. Updating"
               MACHINE_ID=`flyctl m list -j  | jq -r '.[] | select(.name="teleport") | .id'`
-              flyctl machine update $MACHINE_ID --image $IMAGE
+              flyctl machine update $MACHINE_ID --image $IMAGE --yes
             }
         working-directory: apps/teleport
 

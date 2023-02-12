@@ -1,0 +1,58 @@
+---
+version: v2
+teleport:
+  auth_servers:
+    - 127.0.0.1:3025
+  advertise_ip: ${TELEPORT_EXTERNAL_HOST}
+  diag_addr: 127.0.0.1:3000
+  log:
+    severity: INFO
+    output: stderr
+    format:
+      output: text
+      extra_fields: ["timestamp","level","component","caller"]
+
+  connection_limits:
+    max_connections: 500
+    max_users: 20
+
+auth_service:
+  enabled: true
+  proxy_listener_mode: multiplex
+  cluster_name: ${TELEPORT_EXTERNAL_HOST}
+  client_idle_timeout_message: "Teleport session timed out!"
+  web_idle_timeout: 10m
+  client_idle_timeout: 10m
+  authentication:
+    type: github
+    second_factor: on
+    webauthn:
+      rp_id: https://${TELEPORT_EXTERNAL_HOST}
+
+proxy_service:
+  enabled: true
+  public_addr: ${TELEPORT_EXTERNAL_HOST}:443
+  web_listen_addr: 0.0.0.0:443
+  acme:
+    enabled: true
+    email: ${TELEPORT_ACME_EMAIL}
+    uri: https://acme-v02.api.letsencrypt.org/directory
+
+ssh_service:
+  enabled: false
+  commands:
+  - name: arch
+    command: ['/bin/uname', '-p']
+    period: 1h0m0s
+
+db_service:
+  enabled: false
+
+app_service:
+    enabled: false
+    debug_app: false
+    apps:
+    - name: "google"
+      uri: "https://google.com"
+      labels:
+        app-type: "searching"

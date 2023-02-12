@@ -1,0 +1,65 @@
+---
+name: Deploy teleport on fly.io
+
+on:
+  workflow_dispatch:
+    inputs:
+      started:
+        required: true
+        type: boolean
+        default: true
+        description: Started or stopped
+
+jobs:
+  build:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: testing
+    env:
+      FLY_APP: "{{ secrets.TELEPORT_FLY_APP }}"
+      FLY_ORG: "{{ secrets.TELEPORT_FLY_ORG }}"
+      TELEPORT_EXTERNAL_HOST: "{{ secrets.TELEPORT_EXTERNAL_HOST }}"
+      TELEPORT_ACME_EMAIL: "{{ secrets.TELEPORT_ACME_EMAIL}}"
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: Install flyctl
+        run: curl -L https://fly.io/install.sh | sh
+
+      - name: Create fly app
+        run: |
+          flyctl apps releases --app $FLY_APP || flyctl apps create $FLY_APP
+        working-directory: apps/teleport
+
+      - name: Build
+        run: >
+          flyctl deploy --app $FLY_APP --build-only --push --image-label latest
+        working-directory: apps/teleport
+
+      - name: Create volume
+        run: >
+          flyctl volume list --app $FLY_APP -j
+            | jq -r '.[] | select(.name="teleport")'
+            || fly volume create teleport --size 1 --app $FLY_APP
+        working-directory: apps/teleport
+
+      - name: Deploy fly machine
+        if: "{{ inputs.started }}"
+        run: >
+          flyctl machines run registry.fly.io/$FLY_APP
+            --name teleport
+            --app $FLY_APP
+            --region gru 
+            --org $FLY_ORG
+            --port 443:443
+            --volume teleport:/var/lib/teleport
+            || echo "ok"
+        working-directory: apps/teleport
+
+      - name: Destroy fly machine
+        if: "{{ inputs.started == false }}"
+        run: >
+          flyctl machine stop --app $FLY_APP --force
+            $(flyctl m list --app $FLY_APP -j | jq -r '.[] | select(.name="teleport") | .id')
+        working-directory: apps/teleport

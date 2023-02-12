@@ -1,0 +1,34 @@
+---
+kind: user
+version: v2
+metadata:
+  name: terraform
+spec:
+  roles:
+  - editor
+
+---
+kind: role
+version: v5
+metadata:
+  name: terraform
+spec:
+  allow:
+    rules:
+      - resources: ['user', 'role', 'token', 'trusted_cluster', 'github', 'oidc', 'saml']
+        verbs: ['list','create','read','update','delete']
+
+---
+kind: role
+version: v5
+metadata:
+  name: terraform-impersonator
+spec:
+  options:
+  allow:
+    impersonate:
+      users: ['terraform']
+      roles: ['terraform']
+  deny:
+    node_labels:
+      '*': '*'

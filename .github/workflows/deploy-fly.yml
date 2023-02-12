@@ -36,18 +36,18 @@ jobs:
           flyctl apps releases --app $FLY_APP || flyctl apps create $FLY_APP
         working-directory: apps/teleport
 
-      - name: Build
-        if: "${{ inputs.started }}"
-        run: >
-          flyctl deploy --app $FLY_APP --build-only --push --image-label latest
-        working-directory: apps/teleport
-
       - name: Create volume
         run: |
           VOLUMES=`flyctl volume list --app $FLY_APP -j  | jq 'select(.[].name="teleport") | length'`
           [ $VOLUMES -eq 0 ] && {
             fly volume create teleport --region $FLY_REGION --size 1 --app $FLY_APP
           } || echo "Volume already exists"
+        working-directory: apps/teleport
+
+      - name: Build
+        if: "${{ inputs.started }}"
+        run: >
+          flyctl deploy --app $FLY_APP --build-only --push --image-label latest
         working-directory: apps/teleport
 
       - name: Deploy fly machine
@@ -61,7 +61,7 @@ jobs:
               --region $FLY_REGION \
               --org $FLY_ORG \
               --port 443:443 \
-              --volume teleport:/var/lib/teleport
+              --volume teleport:/var/lib/teleport \
             } || echo "Machine already exists"
         working-directory: apps/teleport
 

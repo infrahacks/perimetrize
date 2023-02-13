@@ -1,6 +1,6 @@
 ---
 name: Deploy teleport on fly.io
-run-name: Deploy teleport on fly.io (online={{inputs.online}})
+run-name: Deploy teleport on fly.io (online=${{inputs.online}})
 
 on:
   workflow_dispatch:
@@ -9,12 +9,12 @@ on:
         required: true
         type: boolean
         default: true
-        description: App online?
+        description: fly.io machine online?
       region:
         type: choice
         required: true
         default: gru
-        description: fly region
+        description: fly.io region
         options:
           - gru
 jobs:

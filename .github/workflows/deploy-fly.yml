@@ -96,4 +96,5 @@ jobs:
         working-directory: apps/teleport
         run: |
           MACHINE_ID=`flyctl m list --app $FLY_APP -j | jq -r '.[] | select(.name="teleport") | .id'`
-          flyctl machine remove --force --app $FLY_APP $MACHINE_ID
+          flyctl ips list --app $FLY_APP | grep v4 | awk '{print $2}' | xargs -i flyctl ips release --app $FLY_APP {} 
+          flyctl machine stop --force --app $FLY_APP $MACHINE_ID

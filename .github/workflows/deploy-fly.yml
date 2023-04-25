@@ -41,7 +41,7 @@ jobs:
 
       - name: Install flyctl
         run: |
-          curl -L https://fly.io/install.sh | sh
+          curl -L https://fly.io/install.sh | sed 's/version=.*/version=0.0.462/g' | sh
           echo "/home/runner/.fly/bin" >> $GITHUB_PATH
 
       - name: Create fly app
